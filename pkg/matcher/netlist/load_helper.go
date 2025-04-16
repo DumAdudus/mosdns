@@ -22,10 +22,11 @@ package netlist
 import (
 	"bufio"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 	"io"
 	"net/netip"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 )
 
 // LoadFromReader loads IP list from a reader.

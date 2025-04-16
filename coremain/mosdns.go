@@ -23,6 +23,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/pprof"
+
 	"github.com/IrineSistiana/mosdns/v5/mlog"
 	"github.com/IrineSistiana/mosdns/v5/pkg/safe_close"
 	"github.com/go-chi/chi/v5"
@@ -30,9 +34,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
-	"io"
-	"net/http"
-	"net/http/pprof"
 )
 
 type Mosdns struct {
@@ -78,7 +79,7 @@ func NewMosdns(cfg *Config) (*Mosdns, error) {
 				errChan <- httpServer.ListenAndServe()
 			}()
 			select {
-			case err := <-errChan:
+			case err = <-errChan:
 				m.sc.SendCloseSignal(err)
 			case <-closeSignal:
 				_ = httpServer.Close()
@@ -106,13 +107,13 @@ func NewMosdns(cfg *Config) (*Mosdns, error) {
 	})
 
 	// Preset plugins
-	if err := m.loadPresetPlugins(); err != nil {
+	if err = m.loadPresetPlugins(); err != nil {
 		m.sc.SendCloseSignal(err)
 		_ = m.sc.WaitClosed()
 		return nil, err
 	}
 	// Plugins from config.
-	if err := m.loadPluginsFromCfg(cfg, 0); err != nil {
+	if err = m.loadPluginsFromCfg(cfg, 0); err != nil {
 		m.sc.SendCloseSignal(err)
 		_ = m.sc.WaitClosed()
 		return nil, err
@@ -230,7 +231,7 @@ func (m *Mosdns) loadPluginsFromCfg(cfg *Config, includeDepth int) error {
 			return fmt.Errorf("failed to read config from %s, %w", s, err)
 		}
 		m.logger.Info("load config", zap.String("file", path))
-		if err := m.loadPluginsFromCfg(subCfg, includeDepth); err != nil {
+		if err = m.loadPluginsFromCfg(subCfg, includeDepth); err != nil {
 			return fmt.Errorf("failed to load config from %s, %w", s, err)
 		}
 	}

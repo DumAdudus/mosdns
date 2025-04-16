@@ -428,7 +428,7 @@ func NewUpstream(addr string, opt Opt) (_ Upstream, err error) {
 
 			defer closeIfFuncErr(quicTransport)
 			addonCloser = quicTransport
-			t = &http3.RoundTripper{
+			t = &http3.Transport{
 				TLSClientConfig: opt.TLSConfig,
 				QUICConfig:      quicConfig,
 				Dial: func(ctx context.Context, _ string, tlsCfg *tls.Config, cfg *quic.Config) (quic.EarlyConnection, error) {

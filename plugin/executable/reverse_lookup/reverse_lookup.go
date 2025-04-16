@@ -22,6 +22,11 @@ package reverselookup
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"net/netip"
+	"time"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"github.com/IrineSistiana/mosdns/v5/pkg/cache"
 	"github.com/IrineSistiana/mosdns/v5/pkg/dnsutils"
@@ -30,10 +35,6 @@ import (
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"github.com/go-chi/chi/v5"
 	"github.com/miekg/dns"
-	"net"
-	"net/http"
-	"net/netip"
-	"time"
 )
 
 const (

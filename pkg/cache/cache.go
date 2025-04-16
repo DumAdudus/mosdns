@@ -20,11 +20,12 @@
 package cache
 
 import (
+	"sync/atomic"
+	"time"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/concurrent_lru"
 	"github.com/IrineSistiana/mosdns/v5/pkg/concurrent_map"
 	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
-	"sync/atomic"
-	"time"
 )
 
 const (
@@ -42,7 +43,7 @@ type Value interface {
 // Cache is a simple map cache that stores values in memory.
 // It is safe for concurrent use.
 type Cache[K Key, V Value] struct {
-	opts Opts
+	// opts Opts
 
 	closed      atomic.Bool
 	closeNotify chan struct{}
@@ -120,7 +121,6 @@ func (c *Cache[K, V]) Store(key K, v V, expirationTime time.Time) {
 		expirationTime: expirationTime,
 	}
 	c.m.Set(key, e)
-	return
 }
 
 func (c *Cache[K, V]) gcLoop(interval time.Duration) {
@@ -140,7 +140,7 @@ func (c *Cache[K, V]) gcLoop(interval time.Duration) {
 }
 
 func (c *Cache[K, V]) gc(now time.Time) {
-	f := func(key K, v *elem[V]) (newV *elem[V], setV, delV bool, err error) {
+	f := func(_ K, v *elem[V]) (newV *elem[V], setV, delV bool, err error) {
 		return nil, false, now.After(v.expirationTime), nil
 	}
 	_ = c.m.RangeDo(f)

@@ -78,7 +78,7 @@ func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if xff := req.Header.Get(header); len(xff) != 0 {
 			addr, err := readClientAddrFromXFF(xff)
 			if err != nil {
-				h.warnErr(req, "failed to get client ip from header", fmt.Errorf("failed to prase header %s: %s, %s", header, xff, err))
+				h.warnErr(req, "failed to get client ip from header", fmt.Errorf("failed to prase header %s: %s, %w", header, xff, err))
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
@@ -110,7 +110,7 @@ func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	defer pool.ReleaseBuf(resp)
 	w.Header().Set("Content-Type", "application/dns-message")
-	if _, err := w.Write(*resp); err != nil {
+	if _, err = w.Write(*resp); err != nil {
 		h.warnErr(req, "failed to write response", err)
 		return
 	}

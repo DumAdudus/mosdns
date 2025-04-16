@@ -33,9 +33,7 @@ const (
 	DnsHeaderLen = 12 // minimum dns msg size
 )
 
-var (
-	ErrPayloadTooSmall = errors.New("payload is to small for a valid dns msg")
-)
+var ErrPayloadTooSmall = errors.New("payload is to small for a valid dns msg")
 
 // ReadRawMsgFromTCP reads msg from c in RFC 1035 format (msg is prefixed
 // with a two byte length field).
@@ -45,7 +43,6 @@ func ReadRawMsgFromTCP(c io.Reader) (*[]byte, error) {
 	h := pool.GetBuf(2)
 	defer pool.ReleaseBuf(h)
 	_, err := io.ReadFull(c, *h)
-
 	if err != nil {
 		return nil, err
 	}

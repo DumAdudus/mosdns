@@ -22,11 +22,12 @@
 package nftset_utils
 
 import (
-	"github.com/google/nftables"
 	"net/netip"
 	"os"
 	"sync"
 	"testing"
+
+	"github.com/google/nftables"
 )
 
 func skipCI(t *testing.T) {
@@ -82,7 +83,7 @@ func Test_AddElems(t *testing.T) {
 
 	// test concurrent safe.
 	wg := new(sync.WaitGroup)
-	for i := 0; i < 512; i++ {
+	for range 512 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

@@ -11,6 +11,4 @@ var (
 	errConnectionCtxCanceled = errors.New("connection ctx canceled")
 )
 
-var (
-	nopLogger = zap.NewNop()
-)
+var nopLogger = zap.NewNop()

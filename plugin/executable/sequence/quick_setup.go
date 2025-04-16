@@ -21,9 +21,10 @@ package sequence
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"go.uber.org/zap"
-	"sync"
 )
 
 type BQ interface {

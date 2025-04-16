@@ -22,11 +22,12 @@ package black_hole
 import (
 	"context"
 	"fmt"
+	"net/netip"
+	"strings"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"github.com/miekg/dns"
-	"net/netip"
-	"strings"
 )
 
 const PluginType = "black_hole"

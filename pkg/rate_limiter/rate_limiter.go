@@ -112,17 +112,17 @@ func (l *Limiter) getTableShard(unmappedAddr netip.Addr) *tableShard {
 	return l.tables[getTableShardIdx(unmappedAddr)]
 }
 
-func (l *Limiter) ForEach(doFunc func(unmappedAddr netip.Addr, r *rate.Limiter) (doBreak bool)) (doBreak bool) {
+func (l *Limiter) ForEach(doFunc func(unmappedAddr netip.Addr, r *rate.Limiter) (doBreak bool)) bool {
 	for _, shard := range l.tables {
 		shard.m.Lock()
+		defer shard.m.Unlock()
+
 		for a, e := range shard.table {
-			doBreak = doFunc(a, e.l)
+			doBreak := doFunc(a, e.l)
 			if doBreak {
-				shard.m.Unlock()
-				return
+				return true
 			}
 		}
-		shard.m.Unlock()
 	}
 	return false
 }

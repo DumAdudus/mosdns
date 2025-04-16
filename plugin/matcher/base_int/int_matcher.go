@@ -22,10 +22,11 @@ package base_int
 import (
 	"context"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
-	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"strconv"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
+	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 )
 
 var _ sequence.Matcher = (*Matcher)(nil)

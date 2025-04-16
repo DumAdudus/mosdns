@@ -35,7 +35,7 @@ func Test_Cache(t *testing.T) {
 	c := New[testKey, int](Opts{
 		Size: 1024,
 	})
-	for i := 0; i < 128; i++ {
+	for i := range 128 {
 		key := testKey(i)
 		c.Store(key, i, time.Now().Add(time.Millisecond*200))
 		v, _, ok := c.Get(key)
@@ -48,7 +48,7 @@ func Test_Cache(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 1024*4; i++ {
+	for i := range 1024 * 4 {
 		key := testKey(i)
 		c.Store(key, i, time.Now().Add(time.Millisecond*200))
 	}
@@ -64,7 +64,7 @@ func Test_memCache_cleaner(t *testing.T) {
 		CleanerInterval: time.Millisecond * 10,
 	})
 	defer c.Close()
-	for i := 0; i < 64; i++ {
+	for i := range 64 {
 		key := testKey(i)
 		c.Store(key, i, time.Now().Add(time.Millisecond*10))
 	}
@@ -82,11 +82,11 @@ func Test_memCache_race(t *testing.T) {
 	defer c.Close()
 
 	wg := sync.WaitGroup{}
-	for i := 0; i < 32; i++ {
+	for range 32 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for i := 0; i < 256; i++ {
+			for i := range 256 {
 				key := testKey(i)
 				c.Store(key, i, time.Now().Add(time.Minute))
 				_, _, _ = c.Get(key)

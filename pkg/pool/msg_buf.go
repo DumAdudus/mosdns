@@ -47,7 +47,7 @@ func PackBuffer(m *dns.Msg) (*[]byte, error) {
 	return msgBuf, nil
 }
 
-// PackBuffer packs the dns msg m to wire format, with to bytes length header.
+// PackTCPBuffer packs the dns msg m to wire format, with to bytes length header.
 // Callers should release the buf by calling ReleaseBuf.
 func PackTCPBuffer(m *dns.Msg) (*[]byte, error) {
 	packBuf := GetBuf(packBufferSize)

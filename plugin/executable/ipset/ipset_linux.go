@@ -24,10 +24,11 @@ package ipset
 import (
 	"context"
 	"fmt"
+	"net/netip"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/miekg/dns"
 	"github.com/nadoo/ipset"
-	"net/netip"
 )
 
 type ipSetPlugin struct {

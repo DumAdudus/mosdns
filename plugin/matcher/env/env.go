@@ -21,9 +21,10 @@ package env
 
 import (
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"os"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 )
 
 const PluginType = "env"
@@ -39,7 +40,6 @@ func QuickSetup(_ sequence.BQ, s string) (sequence.Matcher, error) {
 	case 1:
 		k = ss[0]
 	case 2:
-		k = ss[0]
 		k = ss[1]
 	default:
 		return nil, fmt.Errorf("invalid arg number %d", len(ss))

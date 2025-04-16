@@ -108,7 +108,7 @@ func getConn(addr string) (net.Conn, error) {
 		err = tlsConn.Handshake()
 		if err != nil {
 			conn.Close()
-			return nil, fmt.Errorf("tls handshake failed: %v", err)
+			return nil, fmt.Errorf("tls handshake failed: %w", err)
 		}
 		tlsConn.SetDeadline(time.Time{})
 		return tlsConn, nil
@@ -125,21 +125,21 @@ func ProbServerConnectionReuse(addr string) error {
 	defer c.Close()
 
 	conn := dns.Conn{Conn: c}
-	for i := 0; i < 3; i++ {
+	for i := range uint16(3) {
 		conn.SetDeadline(time.Now().Add(time.Second * 3))
 
 		q := new(dns.Msg)
 		q.SetQuestion("www.cloudflare.com.", dns.TypeA)
-		q.Id = uint16(i)
+		q.Id = i
 
 		mlog.S().Infof("sending msg #%d", i)
 		err = conn.WriteMsg(q)
 		if err != nil {
-			return fmt.Errorf("failed to write #%d probe msg: %v", i, err)
+			return fmt.Errorf("failed to write #%d probe msg: %w", i, err)
 		}
 		_, err = conn.ReadMsg()
 		if err != nil {
-			return fmt.Errorf("failed to read #%d probe msg response: %v", i, err)
+			return fmt.Errorf("failed to read #%d probe msg response: %w", i, err)
 		}
 		mlog.S().Infof("recevied response #%d", i)
 	}
@@ -156,14 +156,11 @@ func ProbServerPipeline(addr string) error {
 	defer c.Close()
 
 	conn := dns.Conn{Conn: c}
-	if err != nil {
-		return err
-	}
 	defer conn.Close()
 
 	domains := make([]string, 0)
 	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
+	if _, err = rand.Read(b); err != nil {
 		return err
 	}
 	domains = append(domains, fmt.Sprintf("%x.com.", b))
@@ -178,7 +175,7 @@ func ProbServerPipeline(addr string) error {
 
 		err = conn.WriteMsg(q)
 		if err != nil {
-			return fmt.Errorf("failed to write #%d probe msg: %v", i, err)
+			return fmt.Errorf("failed to write #%d probe msg: %w", i, err)
 		}
 	}
 
@@ -188,11 +185,11 @@ func ProbServerPipeline(addr string) error {
 		conn.SetDeadline(time.Now().Add(time.Second * 10))
 		m, err := conn.ReadMsg()
 		if err != nil {
-			return fmt.Errorf("failed to read #%d probe msg response: %v", i, err)
+			return fmt.Errorf("failed to read #%d probe msg response: %w", i, err)
 		}
 
 		mlog.S().Infof("#%d response received, latency: %d ms", m.Id, time.Since(start).Milliseconds())
-		if m.Id != uint16(i) {
+		if int(m.Id) != i {
 			oooPassed = true
 		}
 	}
@@ -217,14 +214,14 @@ func ProbServerTimeout(addr string) error {
 	q.SetQuestion("www.cloudflare.com.", dns.TypeA)
 	err = conn.WriteMsg(q)
 	if err != nil {
-		return fmt.Errorf("failed to write probe msg: %v", err)
+		return fmt.Errorf("failed to write probe msg: %w", err)
 	}
 
 	mlog.S().Info("testing server idle timeout, awaiting server closing the connection, this may take a while")
 	start := time.Now()
 	_, err = conn.ReadMsg()
 	if err != nil {
-		return fmt.Errorf("failed to read probe msg response: %v", err)
+		return fmt.Errorf("failed to read probe msg response: %w", err)
 	}
 
 	for {

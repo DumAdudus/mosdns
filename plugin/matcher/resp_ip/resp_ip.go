@@ -20,13 +20,14 @@
 package resp_ip
 
 import (
+	"net"
+	"net/netip"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/netlist"
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"github.com/IrineSistiana/mosdns/v5/plugin/matcher/base_ip"
 	"github.com/miekg/dns"
-	"net"
-	"net/netip"
 )
 
 const PluginType = "resp_ip"

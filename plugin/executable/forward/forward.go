@@ -88,15 +88,17 @@ func Init(bp *coremain.BP, args any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := f.RegisterMetricsTo(prometheus.WrapRegistererWithPrefix(PluginType+"_", bp.M().GetMetricsReg())); err != nil {
+	if err = f.RegisterMetricsTo(prometheus.WrapRegistererWithPrefix(PluginType+"_", bp.M().GetMetricsReg())); err != nil {
 		_ = f.Close()
 		return nil, err
 	}
 	return f, nil
 }
 
-var _ sequence.Executable = (*Forward)(nil)
-var _ sequence.QuickConfigurableExec = (*Forward)(nil)
+var (
+	_ sequence.Executable            = (*Forward)(nil)
+	_ sequence.QuickConfigurableExec = (*Forward)(nil)
+)
 
 type Forward struct {
 	args *Args
@@ -253,17 +255,17 @@ func (f *Forward) exchange(ctx context.Context, qCtx *query_context.Context, us 
 		concurrent = maxConcurrentQueries
 	}
 
-	type res struct {
+	type resp struct {
 		r   *dns.Msg
 		err error
 	}
 
-	resChan := make(chan res)
+	resChan := make(chan resp)
 	done := make(chan struct{})
 	defer close(done)
 
 	r := rand.IntN(len(us))
-	for i := 0; i < concurrent; i++ {
+	for i := range concurrent {
 		u := us[(r+i)%len(us)]
 		qc := copyPayload(queryPayload)
 		go func(uqid uint32, question dns.Question) {
@@ -293,25 +295,24 @@ func (f *Forward) exchange(ctx context.Context, qCtx *query_context.Context, us 
 				}
 			}
 			select {
-			case resChan <- res{r: r, err: err}:
+			case resChan <- resp{r: r, err: err}:
 			case <-done:
 			}
 		}(qCtx.Id(), qCtx.QQuestion())
 	}
 
-	for i := 0; i < concurrent; i++ {
+	for i := range concurrent {
 		select {
 		case res := <-resChan:
-			r, err := res.r, res.err
-			if err != nil {
+			if res.err != nil {
 				continue
 			}
 
 			// Retry until the last
-			if i < concurrent-1 && r.Rcode != dns.RcodeSuccess && r.Rcode != dns.RcodeNameError {
+			if i < concurrent-1 && res.r.Rcode != dns.RcodeSuccess && res.r.Rcode != dns.RcodeNameError {
 				continue
 			}
-			return r, nil
+			return res.r, nil
 		case <-ctx.Done():
 			return nil, context.Cause(ctx)
 		}

@@ -20,8 +20,9 @@
 package concurrent_lru
 
 import (
-	"github.com/IrineSistiana/mosdns/v5/pkg/lru"
 	"sync"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/lru"
 )
 
 type Hashable interface {
@@ -41,8 +42,8 @@ func NewShardedLRU[K Hashable, V any](
 		l: make([]*ConcurrentLRU[K, V], 0, shardNum),
 	}
 
-	for i := 0; i < shardNum; i++ {
-		cl.l = append(cl.l, NewConecurrentLRU[K, V](maxSizePerShard, onEvict))
+	for range shardNum {
+		cl.l = append(cl.l, NewConecurrentLRU(maxSizePerShard, onEvict))
 	}
 
 	return cl
@@ -71,10 +72,9 @@ func (c *ShardedLRU[K, V]) Flush() {
 	}
 }
 
-func (c *ShardedLRU[K, V]) Get(key K) (v V, ok bool) {
+func (c *ShardedLRU[K, V]) Get(key K) (V, bool) {
 	sl := c.getShard(key)
-	v, ok = sl.Get(key)
-	return
+	return sl.Get(key)
 }
 
 func (c *ShardedLRU[K, V]) Len() int {
@@ -102,7 +102,7 @@ type ConcurrentLRU[K comparable, V any] struct {
 
 func NewConecurrentLRU[K comparable, V any](maxSize int, onEvict func(key K, v V)) *ConcurrentLRU[K, V] {
 	return &ConcurrentLRU[K, V]{
-		lru: lru.NewLRU[K, V](maxSize, onEvict),
+		lru: lru.NewLRU(maxSize, onEvict),
 	}
 }
 
@@ -133,12 +133,11 @@ func (c *ConcurrentLRU[K, V]) Flush() {
 	c.lru.Flush()
 }
 
-func (c *ConcurrentLRU[K, V]) Get(key K) (v V, ok bool) {
+func (c *ConcurrentLRU[K, V]) Get(key K) (V, bool) {
 	c.Lock()
 	defer c.Unlock()
 
-	v, ok = c.lru.Get(key)
-	return
+	return c.lru.Get(key)
 }
 
 func (c *ConcurrentLRU[K, V]) Len() int {

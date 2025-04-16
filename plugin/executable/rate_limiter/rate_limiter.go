@@ -21,6 +21,7 @@ package rate_limiter
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/netip"
@@ -53,16 +54,18 @@ func (args *Args) init() error {
 	utils.SetDefaultUnsignNum(&args.Mask6, 48)
 
 	if !utils.CheckNumRange(args.Mask4, 0, 32) {
-		return fmt.Errorf("invalid mask4")
+		return errors.New("invalid mask4")
 	}
 	if !utils.CheckNumRange(args.Mask6, 0, 128) {
-		return fmt.Errorf("invalid mask6")
+		return errors.New("invalid mask6")
 	}
 	return nil
 }
 
-var _ sequence.Matcher = (*RateLimiter)(nil)
-var _ io.Closer = (*RateLimiter)(nil)
+var (
+	_ sequence.Matcher = (*RateLimiter)(nil)
+	_ io.Closer        = (*RateLimiter)(nil)
+)
 
 type RateLimiter struct {
 	args Args

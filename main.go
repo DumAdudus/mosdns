@@ -20,25 +20,23 @@
 package main
 
 import (
-	"fmt"
+	_ "net/http/pprof"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"github.com/IrineSistiana/mosdns/v5/mlog"
 	_ "github.com/IrineSistiana/mosdns/v5/plugin"
 	_ "github.com/IrineSistiana/mosdns/v5/tools"
 	"github.com/spf13/cobra"
-	_ "net/http/pprof"
 )
 
-var (
-	version = "dev/unknown"
-)
+var version = "dev/unknown"
 
 func init() {
 	coremain.AddSubCmd(&cobra.Command{
 		Use:   "version",
 		Short: "Print out version info and exit.",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(version)
+			mlog.S().Info(version)
 		},
 	})
 }

@@ -178,7 +178,6 @@ func (dc *TraditionalDnsConn) readResp() (payload *[]byte, err error) {
 
 // readLoop reads DnsConn until there was a read error.
 func (dc *TraditionalDnsConn) readLoop() {
-
 	for {
 		dc.c.SetReadDeadline(time.Now().Add(dc.idleTimeout))
 		r, err := dc.readResp()
@@ -234,11 +233,11 @@ func (dc *TraditionalDnsConn) getQueueC(qid uint16) chan<- *[]byte {
 	return dc.queue[uint32(qid)]
 }
 
-func (dc *TraditionalDnsConn) queueLen() int {
-	dc.queueMu.RLock()
-	defer dc.queueMu.RUnlock()
-	return len(dc.queue) + dc.reservedQuery
-}
+// func (dc *TraditionalDnsConn) queueLen() int {
+// 	dc.queueMu.RLock()
+// 	defer dc.queueMu.RUnlock()
+// 	return len(dc.queue) + dc.reservedQuery
+// }
 
 // addQueueC assigns a qid and add it to the queue.
 // It returns a nil c if queue has too many queries.
@@ -246,7 +245,7 @@ func (dc *TraditionalDnsConn) queueLen() int {
 func (dc *TraditionalDnsConn) addQueueC() (qid uint16, c chan *[]byte) {
 	c = make(chan *[]byte)
 	dc.queueMu.Lock()
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		qid = dc.nextQid
 		dc.nextQid++
 		if _, dup := dc.queue[uint32(qid)]; dup {

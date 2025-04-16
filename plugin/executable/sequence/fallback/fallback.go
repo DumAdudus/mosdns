@@ -36,7 +36,7 @@ import (
 const PluginType = "fallback"
 
 const (
-	defaultParallelTimeout   = time.Second * 5
+	defaultParallelTimeout   = time.Second * 3
 	defaultFallbackThreshold = time.Millisecond * 500
 )
 
@@ -97,9 +97,7 @@ func newFallbackPlugin(bp *coremain.BP, args *Args) (*fallback, error) {
 	return s, nil
 }
 
-var (
-	ErrFailed = errors.New("no valid response from both primary and secondary")
-)
+var errFailed = errors.New("no valid response from both primary and secondary")
 
 var _ sequence.Executable = (*fallback)(nil)
 
@@ -115,15 +113,14 @@ func (f *fallback) doFallback(ctx context.Context, qCtx *query_context.Context) 
 	// primary goroutine.
 	qCtxP := qCtx.Copy()
 	go func() {
-		qCtx := qCtxP
-		ctx, cancel := makeDdlCtx(ctx, defaultParallelTimeout)
+		ctx1st, cancel := makeDdlCtx(ctx, defaultParallelTimeout)
 		defer cancel()
-		err := f.primary.Exec(ctx, qCtx)
-		if err != nil {
-			f.logger.Warn("primary error", qCtx.InfoField(), zap.Error(err))
+		err := f.primary.Exec(ctx1st, qCtxP)
+		if err != nil && !errors.Is(err, context.Canceled) {
+			f.logger.Warn("primary error", qCtxP.InfoField(), zap.Error(err))
 		}
 
-		r := qCtx.R()
+		r := qCtxP.R()
 		if err != nil || r == nil {
 			close(primFailed)
 			respChan <- nil
@@ -147,21 +144,22 @@ func (f *fallback) doFallback(ctx context.Context, qCtx *query_context.Context) 
 			}
 		}
 
-		qCtx := qCtxS
-		ctx, cancel := makeDdlCtx(ctx, defaultParallelTimeout)
+		ctx2nd, cancel := makeDdlCtx(ctx, defaultParallelTimeout)
 		defer cancel()
-		err := f.secondary.Exec(ctx, qCtx)
+		err := f.secondary.Exec(ctx2nd, qCtxS)
 		if err != nil {
-			f.logger.Warn("secondary error", qCtx.InfoField(), zap.Error(err))
+			if !errors.Is(err, context.Canceled) {
+				f.logger.Warn("secondary error", qCtxS.InfoField(), zap.Error(err))
+			}
 			respChan <- nil
 			return
 		}
 
-		r := qCtx.R()
+		r := qCtxS.R()
 		// always standby is enabled. Wait until secondary resp is needed.
 		if f.alwaysStandby && r != nil {
 			select {
-			case <-ctx.Done():
+			case <-ctx2nd.Done():
 			case <-primDone:
 			case <-primFailed: // only send secondary result when primary is failed.
 			case <-timer.C: // or timed out.
@@ -170,7 +168,7 @@ func (f *fallback) doFallback(ctx context.Context, qCtx *query_context.Context) 
 		respChan <- r
 	}()
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		select {
 		case <-ctx.Done():
 			return context.Cause(ctx)
@@ -184,13 +182,9 @@ func (f *fallback) doFallback(ctx context.Context, qCtx *query_context.Context) 
 	}
 
 	// All goroutines finished but failed.
-	return ErrFailed
+	return errFailed
 }
 
 func makeDdlCtx(ctx context.Context, timeout time.Duration) (context.Context, func()) {
-	ddl, ok := ctx.Deadline()
-	if !ok {
-		ddl = time.Now().Add(timeout)
-	}
-	return context.WithDeadline(context.Background(), ddl)
+	return context.WithDeadline(ctx, time.Now().Add(timeout))
 }

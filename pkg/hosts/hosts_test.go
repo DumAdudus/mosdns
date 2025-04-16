@@ -21,10 +21,11 @@ package hosts
 
 import (
 	"bytes"
-	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
-	"github.com/miekg/dns"
 	"net"
 	"testing"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
+	"github.com/miekg/dns"
 )
 
 var test_hosts = `
@@ -40,7 +41,7 @@ test.com 2.3.4.5
 func Test_hostsContainer_Match(t *testing.T) {
 	m := domain.NewMixMatcher[*IPs]()
 	m.SetDefaultMatcher(domain.MatcherDomain)
-	err := domain.LoadFromTextReader[*IPs](m, bytes.NewBuffer([]byte(test_hosts)), ParseIPs)
+	err := domain.LoadFromTextReader(m, bytes.NewBufferString(test_hosts), ParseIPs)
 	if err != nil {
 		t.Fatal(err)
 	}

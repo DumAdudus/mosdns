@@ -20,8 +20,9 @@
 package dnsutils
 
 import (
-	"github.com/miekg/dns"
 	"strconv"
+
+	"github.com/miekg/dns"
 )
 
 // GetMinimalTTL returns the minimal ttl of this msg.

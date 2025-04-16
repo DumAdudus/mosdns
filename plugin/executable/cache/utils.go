@@ -27,6 +27,7 @@ import (
 	"github.com/IrineSistiana/mosdns/v5/pkg/dnsutils"
 	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 	"github.com/miekg/dns"
+	"go.uber.org/zap"
 	"golang.org/x/exp/constraints"
 )
 
@@ -58,13 +59,13 @@ func getMsgKey(q *dns.Msg) string {
 	// indicating that the requester understands and is interested in the
 	// value of the AD bit in the response.
 	if q.AuthenticatedData {
-		b = b | adBit
+		b |= adBit
 	}
 	if q.CheckingDisabled {
-		b = b | cdBit
+		b |= cdBit
 	}
 	if opt := q.IsEdns0(); opt != nil && opt.Do() {
-		b = b | doBit
+		b |= doBit
 	}
 	buf[0] = b
 	buf[1] = byte(question.Qtype << 8)
@@ -133,7 +134,7 @@ func min[T constraints.Ordered](a, b T) T {
 // The ttl of returned msg will be changed properly.
 // Returned bool indicates whether this response is hit by lazy cache.
 // Note: Caller SHOULD change the msg id because it's not same as query's.
-func getRespFromCache(msgKey string, backend *cache.Cache[key, *item], lazyCacheEnabled bool, lazyTtl int) (*dns.Msg, bool) {
+func getRespFromCache(msgKey string, backend *cache.Cache[key, *item], lazyCacheEnabled bool, lazyTtl int, logger *zap.Logger) (*dns.Msg, bool) {
 	// Lookup cache
 	v, _, _ := backend.Get(key(msgKey))
 
@@ -145,6 +146,7 @@ func getRespFromCache(msgKey string, backend *cache.Cache[key, *item], lazyCache
 		if now.Before(v.expirationTime) {
 			r := v.resp.Copy()
 			dnsutils.SubtractTTL(r, uint32(now.Sub(v.storedTime).Seconds()))
+			logger.Debug("cache hit ok", zap.String("msg", msgKey))
 			return r, false
 		}
 
@@ -153,6 +155,7 @@ func getRespFromCache(msgKey string, backend *cache.Cache[key, *item], lazyCache
 		if lazyCacheEnabled {
 			r := v.resp.Copy()
 			dnsutils.SetTTL(r, uint32(lazyTtl))
+			logger.Debug("cache hit expired", zap.String("msg", msgKey))
 			return r, true
 		}
 	}
@@ -164,7 +167,7 @@ func getRespFromCache(msgKey string, backend *cache.Cache[key, *item], lazyCache
 // saveRespToCache saves r to cache backend. It returns false if r
 // should not be cached and was skipped.
 func saveRespToCache(msgKey string, r *dns.Msg, backend *cache.Cache[key, *item], lazyCacheTtl int) bool {
-	if r.Truncated != false {
+	if r.Truncated {
 		return false
 	}
 

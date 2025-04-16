@@ -29,9 +29,7 @@ type lazyDnsConn struct {
 
 var _ DnsConn = (*lazyDnsConn)(nil)
 
-var (
-	errLazyConnDialCanceled = errors.New("lazy dial canceled")
-)
+var errLazyConnDialCanceled = errors.New("lazy dial canceled")
 
 func newLazyDnsConn(
 	dial func(ctx context.Context) (DnsConn, error),
@@ -42,7 +40,7 @@ func newLazyDnsConn(
 	if dialTimeout <= 0 {
 		dialTimeout = defaultDialTimeout
 	}
-	dialCtx, cancelDial := context.WithTimeout(context.Background(), defaultDialTimeout)
+	dialCtx, cancelDial := context.WithTimeout(context.Background(), dialTimeout)
 	lc := &lazyDnsConn{
 		maxConcurrentQuery: maxConcurrentQueryWhileDialing,
 		cancelDial:         cancelDial,
@@ -85,11 +83,9 @@ func (lc *lazyDnsConn) Close() error {
 		lc.cancelDial()
 		lc.dialErr = errLazyConnDialCanceled
 		close(lc.dialFinished)
-	} else {
+	} else if lc.c != nil {
 		// close connection
-		if lc.c != nil {
-			lc.c.Close()
-		}
+		lc.c.Close()
 	}
 	return nil
 }

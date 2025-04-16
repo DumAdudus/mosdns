@@ -52,8 +52,10 @@ func init() {
 	})
 }
 
-var _ sequence.RecursiveExecutable = (*Selector)(nil)
-var _ io.Closer = (*Selector)(nil)
+var (
+	_ sequence.RecursiveExecutable = (*Selector)(nil)
+	_ io.Closer                    = (*Selector)(nil)
+)
 
 type Selector struct {
 	sequence.BQ

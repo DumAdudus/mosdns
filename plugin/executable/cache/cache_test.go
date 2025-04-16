@@ -21,10 +21,11 @@ package cache
 
 import (
 	"bytes"
-	"github.com/miekg/dns"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/miekg/dns"
 )
 
 func Test_cachePlugin_Dump(t *testing.T) {
@@ -42,7 +43,7 @@ func Test_cachePlugin_Dump(t *testing.T) {
 	}
 
 	// Fill the cache
-	for i := 0; i < 32*dumpBlockSize; i++ {
+	for i := range 32 * dumpBlockSize {
 		c.backend.Store(key(strconv.Itoa(i)), v, hourLater)
 	}
 

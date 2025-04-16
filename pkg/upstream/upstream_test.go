@@ -101,7 +101,6 @@ var m = map[string]newTestServerFunc{
 }
 
 func Test_fastUpstream(t *testing.T) {
-
 	// TODO: add test for doh
 	// TODO: add test for socks5
 
@@ -109,10 +108,8 @@ func Test_fastUpstream(t *testing.T) {
 	for scheme, f := range m {
 		for _, bigMsg := range [...]bool{true, false} {
 			for _, latency := range [...]time.Duration{0, time.Millisecond * 10} {
-
 				// client specific
 				for _, idleTimeout := range [...]time.Duration{0, time.Second} {
-
 					testName := fmt.Sprintf(
 						"test: protocol: %s, bigMsg: %v, latency: %s, getIdleTimeout: %s",
 						scheme,
@@ -138,18 +135,17 @@ func Test_fastUpstream(t *testing.T) {
 							t.Fatal(err)
 						}
 
-						if err := testUpstream(u); err != nil {
+						if err := testUpstream(t, u); err != nil {
 							t.Fatal(err)
 						}
 					})
 				}
 			}
 		}
-
 	}
 }
 
-func testUpstream(u Upstream) error {
+func testUpstream(t *testing.T, u Upstream) error {
 	wg := sync.WaitGroup{}
 	errs := make([]error, 0)
 	errsLock := sync.Mutex{}
@@ -166,9 +162,8 @@ func testUpstream(u Upstream) error {
 		return s
 	}
 
-	for i := uint16(0); i < 10; i++ {
+	for i := range uint16(10) {
 		wg.Add(1)
-		i := i
 		go func() {
 			defer wg.Done()
 
@@ -180,7 +175,7 @@ func testUpstream(u Upstream) error {
 				logErr(err)
 				return
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 			defer cancel()
 			r, err := u.ExchangeContext(ctx, queryPayload)
 			if err != nil {
@@ -199,7 +194,7 @@ func testUpstream(u Upstream) error {
 				return
 			}
 			if !resp.Response {
-				logErr(fmt.Errorf("resp is not a resp bit"))
+				logErr(errors.New("resp is not a resp bit"))
 				return
 			}
 		}()

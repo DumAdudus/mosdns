@@ -77,7 +77,7 @@ func TestConcurrentLRU(t *testing.T) {
 
 	// test add overflow
 	reset(4, 16) // max size is 64
-	for i := 0; i < 1024; i++ {
+	for i := range 1024 {
 		add(i)
 	}
 	if cache.Len() > 64 {

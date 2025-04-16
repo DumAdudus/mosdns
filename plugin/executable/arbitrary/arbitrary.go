@@ -23,12 +23,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/IrineSistiana/mosdns/v5/pkg/zone_file"
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
-	"os"
-	"strings"
 )
 
 const PluginType = "arbitrary"

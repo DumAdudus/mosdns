@@ -195,8 +195,10 @@ func (c *Cache) Exec(ctx context.Context, qCtx *query_context.Context, next sequ
 		return next.ExecNext(ctx, qCtx)
 	}
 
-	cachedResp, lazyHit := getRespFromCache(msgKey, c.backend, c.args.LazyCacheTTL > 0, expiredMsgTtl)
+	c.logger.Debug("cache processing", zap.String("msg", q.Question[0].String()), zap.Any("lazyttl", c.args))
+	cachedResp, lazyHit := getRespFromCache(msgKey, c.backend, c.args.LazyCacheTTL > 0, expiredMsgTtl, c.logger)
 	if lazyHit {
+		c.logger.Debug("cache lazyHit", zap.String("msg", q.Question[0].String()))
 		c.lazyHitTotal.Inc()
 		c.doLazyUpdate(msgKey, qCtx, next)
 	}
@@ -204,12 +206,15 @@ func (c *Cache) Exec(ctx context.Context, qCtx *query_context.Context, next sequ
 		c.hitTotal.Inc()
 		cachedResp.Id = q.Id // change msg id
 		qCtx.SetResponse(cachedResp)
+		c.logger.Debug("cache hit", zap.String("msg", q.Question[0].String()))
 	}
 
 	err := next.ExecNext(ctx, qCtx)
 
 	if r := qCtx.R(); r != nil && cachedResp != r { // pointer compare. r is not cachedResp
-		saveRespToCache(msgKey, r, c.backend, c.args.LazyCacheTTL)
+		if saveRespToCache(msgKey, r, c.backend, c.args.LazyCacheTTL) {
+			c.logger.Debug("cache saving", zap.String("msg", q.Question[0].String()))
+		}
 		c.updatedKey.Add(1)
 	}
 	return err
@@ -387,7 +392,7 @@ func (c *Cache) writeDump(w io.Writer) (int, error) {
 		block.Entries = append(block.Entries, e)
 
 		// Block is big enough for a write operation.
-		if len(block.Entries) >= dumpBlockSize {
+		if len(block.GetEntries()) >= dumpBlockSize {
 			return writeBlock()
 		}
 		return nil
@@ -416,7 +421,7 @@ func (c *Cache) readDump(r io.Reader) (int, error) {
 		return en, fmt.Errorf("invalid or old cache dump, header is %s, want %s", gr.Name, dumpHeader)
 	}
 
-	var errReadHeaderEOF = errors.New("")
+	errReadHeaderEOF := errors.New("")
 	readBlock := func() error {
 		h := pool.GetBuf(8)
 		defer pool.ReleaseBuf(h)
@@ -467,7 +472,7 @@ func (c *Cache) readDump(r io.Reader) (int, error) {
 	for {
 		err = readBlock()
 		if err != nil {
-			if err == errReadHeaderEOF {
+			if errors.Is(err, errReadHeaderEOF) {
 				err = nil // This is expected if there is no block to read.
 			}
 			break

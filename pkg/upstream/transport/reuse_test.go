@@ -42,16 +42,16 @@ func Test_ReuseConnTransport(t *testing.T) {
 	rt := NewReuseConnTransport(po)
 	defer rt.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 	defer cancel()
 	q := new(dns.Msg)
 	q.SetQuestion("test.", dns.TypeA)
 	queryPayload, err := q.Pack()
 	r.NoError(err)
 	concurrentQueryNum := 10
-	for l := 0; l < 4; l++ {
+	for range 4 {
 		wg := new(sync.WaitGroup)
-		for i := 0; i < concurrentQueryNum; i++ {
+		for range concurrentQueryNum {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -90,7 +90,7 @@ func Test_ReuseConnTransport_Read_err_and_close(t *testing.T) {
 	rt := NewReuseConnTransport(po)
 	defer rt.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 	defer cancel()
 	q := new(dns.Msg)
 	q.SetQuestion("test.", dns.TypeA)
@@ -98,7 +98,7 @@ func Test_ReuseConnTransport_Read_err_and_close(t *testing.T) {
 	r.NoError(err)
 
 	wg := new(sync.WaitGroup)
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -136,7 +136,7 @@ func Test_ReuseConnTransport_conn_lose_and_close(t *testing.T) {
 	queryPayload, err := q.Pack()
 	r.NoError(err)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
+	ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*50)
 	defer cancel()
 	_, err = rt.ExchangeContext(ctx, queryPayload) // canceled ctx
 	r.Error(err)

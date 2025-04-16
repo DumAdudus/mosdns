@@ -20,6 +20,8 @@
 package domain
 
 import (
+	"iter"
+	"slices"
 	"strings"
 )
 
@@ -53,6 +55,19 @@ func (s *ReverseDomainScanner) NextLabelOffset() int {
 
 func (s *ReverseDomainScanner) NextLabel() (label string) {
 	return s.s[s.p+1 : s.t]
+}
+
+func (s *ReverseDomainScanner) All() iter.Seq[string] {
+	return func(yield func(string) bool) {
+		labels := strings.Split(s.s, ".")
+		for _, label := range slices.Backward(labels) {
+			if label != "" {
+				if !yield(label) {
+					return
+				}
+			}
+		}
+	}
 }
 
 // NormalizeDomain normalize domain string s.

@@ -114,14 +114,14 @@ func Test_PipelineTransport(t *testing.T) {
 	pt := NewPipelineTransport(po)
 	defer pt.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 	defer cancel()
 	q := new(dns.Msg)
 	q.SetQuestion("test.", dns.TypeA)
 	queryPayload, err := q.Pack()
 	r.NoError(err)
 	wg := new(sync.WaitGroup)
-	for i := 0; i < wantMaxConcurrentExchangeCall; i++ {
+	for range wantMaxConcurrentExchangeCall {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

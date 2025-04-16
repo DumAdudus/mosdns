@@ -28,11 +28,13 @@ import (
 	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 )
 
-var _ WriteableMatcher[any] = (*MixMatcher[any])(nil)
-var _ WriteableMatcher[any] = (*SubDomainMatcher[any])(nil)
-var _ WriteableMatcher[any] = (*FullMatcher[any])(nil)
-var _ WriteableMatcher[any] = (*KeywordMatcher[any])(nil)
-var _ WriteableMatcher[any] = (*RegexMatcher[any])(nil)
+var (
+	_ WriteableMatcher[any] = (*MixMatcher[any])(nil)
+	_ WriteableMatcher[any] = (*SubDomainMatcher[any])(nil)
+	_ WriteableMatcher[any] = (*FullMatcher[any])(nil)
+	_ WriteableMatcher[any] = (*KeywordMatcher[any])(nil)
+	_ WriteableMatcher[any] = (*RegexMatcher[any])(nil)
+)
 
 type SubDomainMatcher[T any] struct {
 	root *labelNode[T]
@@ -47,8 +49,7 @@ func (m *SubDomainMatcher[T]) Match(s string) (T, bool) {
 	ds := NewReverseDomainScanner(s)
 	currentNode := m.root
 	v, ok := currentNode.getValue()
-	for ds.Scan() {
-		label := ds.NextLabel()
+	for label := range ds.All() {
 		if nextNode := currentNode.getChild(label); nextNode != nil {
 			if nextNode.hasValue() {
 				v, ok = nextNode.getValue()
@@ -69,8 +70,7 @@ func (m *SubDomainMatcher[T]) Add(s string, v T) error {
 	s = NormalizeDomain(s)
 	ds := NewReverseDomainScanner(s)
 	currentNode := m.root
-	for ds.Scan() {
-		label := ds.NextLabel()
+	for label := range ds.All() {
 		if child := currentNode.getChild(label); child != nil {
 			currentNode = child
 		} else {

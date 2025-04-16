@@ -47,7 +47,7 @@ func s(str string) *aStr {
 }
 
 func (a *aStr) Append(v any) {
-	a.s = a.s + v.(*aStr).s
+	a.s += v.(*aStr).s
 }
 
 func TestDomainMatcher(t *testing.T) {

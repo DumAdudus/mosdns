@@ -24,9 +24,7 @@ import (
 	"time"
 )
 
-var (
-	timerPool = sync.Pool{}
-)
+var timerPool = sync.Pool{}
 
 func GetTimer(t time.Duration) *time.Timer {
 	timer, ok := timerPool.Get().(*time.Timer)

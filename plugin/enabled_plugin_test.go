@@ -23,5 +23,4 @@ import "testing"
 
 // This is an empty test, but it can run all init() of enabled plugins.
 func Test_plugins_init(t *testing.T) {
-
 }

@@ -21,11 +21,12 @@ package coremain
 
 import (
 	"fmt"
+	"reflect"
+	"sync"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
-	"reflect"
-	"sync"
 )
 
 // NewPluginArgsFunc represents a func that creates a new args object.
@@ -40,13 +41,11 @@ type PluginTypeInfo struct {
 	NewArgs   NewPluginArgsFunc
 }
 
-var (
-	// pluginTypeRegister stores init funcs for certain plugin types
-	pluginTypeRegister struct {
-		sync.RWMutex
-		m map[string]PluginTypeInfo
-	}
-)
+// pluginTypeRegister stores init funcs for certain plugin types
+var pluginTypeRegister struct {
+	sync.RWMutex
+	m map[string]PluginTypeInfo
+}
 
 // RegNewPluginFunc registers the type.
 // If the type has been registered. RegNewPluginFunc will panic.
@@ -124,7 +123,7 @@ func GetAllPluginTypes() []string {
 	pluginTypeRegister.RLock()
 	defer pluginTypeRegister.RUnlock()
 
-	var t []string
+	t := make([]string, 0, len(pluginTypeRegister.m))
 	for typ := range pluginTypeRegister.m {
 		t = append(t, typ)
 	}

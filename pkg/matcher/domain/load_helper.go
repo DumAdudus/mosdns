@@ -23,10 +23,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 	"io"
 	"strings"
 	"unicode"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 )
 
 // ParseStringFunc parse data string to matcher pattern and additional attributions.
@@ -67,7 +68,7 @@ func LoadFromTextReader[T any](m WriteableMatcher[T], r io.Reader, parseString P
 
 		err := Load(m, s, parseString)
 		if err != nil {
-			return fmt.Errorf("line %d: %v", lineCounter, err)
+			return fmt.Errorf("line %d: %w", lineCounter, err)
 		}
 	}
 	return scanner.Err()

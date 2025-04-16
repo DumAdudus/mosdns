@@ -36,8 +36,7 @@ func Test_Map(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// test add
-	for i := 0; i < 512; i++ {
-		i := i
+	for i := range 512 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -68,8 +67,7 @@ func Test_Map(t *testing.T) {
 	}
 
 	// test get
-	for i := 0; i < 512; i++ {
-		i := i
+	for i := range 512 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -92,8 +90,7 @@ func Test_Map(t *testing.T) {
 	}
 
 	// test del
-	for i := 0; i < 512; i++ {
-		i := i
+	for i := range 512 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -114,7 +111,7 @@ func TestConcurrentMap_TestAndSet(t *testing.T) {
 		return 1, true, false
 	}
 
-	for i := 0; i < 512; i++ {
+	for range 512 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -142,7 +139,7 @@ func TestConcurrentMap_TestAndSet(t *testing.T) {
 func BenchmarkConcurrentMap_Get_And_Set(b *testing.B) {
 	keys := make([]testMapHashable, 2048)
 	m := NewMap[testMapHashable, int]()
-	for i := 0; i < 2048; i++ {
+	for i := range 2048 {
 		key := testMapHashable(i)
 		keys[i] = key
 		m.Set(key, i)
@@ -165,7 +162,7 @@ func Benchmark_RWMutexMap_Get_And_Set(b *testing.B) {
 	keys := make([]int, 2048)
 	rwm := new(sync.RWMutex)
 	m := make(map[int]int, 2048)
-	for i := 0; i < 2048; i++ {
+	for i := range 2048 {
 		keys[i] = i
 		m[i] = i
 	}

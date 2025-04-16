@@ -22,10 +22,11 @@ package domain_set
 import (
 	"bytes"
 	"fmt"
+	"os"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
 	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider"
-	"os"
 )
 
 const PluginType = "domain_set"

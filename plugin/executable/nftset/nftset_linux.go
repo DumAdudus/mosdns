@@ -54,7 +54,7 @@ func newNftSetPlugin(args *Args) (*nftSetPlugin, error) {
 	}
 
 	newHandler := func(sa SetArgs) (*nftset_utils.NftSetHandler, error) {
-		if !(len(sa.Table) > 0 && len(sa.TableFamily) > 0 && len(sa.Set) > 0) {
+		if sa.Table == "" || sa.TableFamily == "" || sa.Set == "" {
 			return nil, nil
 		}
 		f, ok := parseTableFamily(sa.TableFamily)

@@ -25,7 +25,6 @@ import (
 )
 
 func Test_parseExec(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		args     string

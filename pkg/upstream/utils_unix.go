@@ -49,7 +49,6 @@ func getSocketControlFunc(opts socketOpts) func(string, string, syscall.RawConn)
 					return
 				}
 			}
-
 		}); err != nil {
 			return err
 		}

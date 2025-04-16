@@ -25,13 +25,11 @@ import (
 
 	"github.com/IrineSistiana/mosdns/v5/pkg/pool"
 	"github.com/IrineSistiana/mosdns/v5/pkg/upstream"
-	"github.com/miekg/dns"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.uber.org/zap/zapcore"
 )
 
 type upstreamWrapper struct {
-	idx             int
+	// idx             int
 	u               upstream.Upstream
 	cfg             UpstreamConfig
 	queryTotal      prometheus.Counter
@@ -138,19 +136,19 @@ func (uw *upstreamWrapper) Close() error {
 	return uw.u.Close()
 }
 
-type queryInfo dns.Msg
+// type queryInfo dns.Msg
 
-func (q *queryInfo) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	if len(q.Question) != 1 {
-		encoder.AddBool("odd_question", true)
-	} else {
-		question := q.Question[0]
-		encoder.AddString("qname", question.Name)
-		encoder.AddUint16("qtype", question.Qtype)
-		encoder.AddUint16("qclass", question.Qclass)
-	}
-	return nil
-}
+// func (q *queryInfo) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+// 	if len(q.Question) != 1 {
+// 		encoder.AddBool("odd_question", true)
+// 	} else {
+// 		question := q.Question[0]
+// 		encoder.AddString("qname", question.Name)
+// 		encoder.AddUint16("qtype", question.Qtype)
+// 		encoder.AddUint16("qclass", question.Qclass)
+// 	}
+// 	return nil
+// }
 
 func copyPayload(b *[]byte) *[]byte {
 	bc := pool.GetBuf(len(*b))

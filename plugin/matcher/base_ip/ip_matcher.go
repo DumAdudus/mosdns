@@ -22,12 +22,13 @@ package base_ip
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/netlist"
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider"
 	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider/ip_set"
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
-	"strings"
 )
 
 var _ sequence.Matcher = (*Matcher)(nil)

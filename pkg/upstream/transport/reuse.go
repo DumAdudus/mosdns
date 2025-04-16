@@ -245,9 +245,7 @@ func (t *ReuseConnTransport) newReusableConn(c NetConn) *reusableConn {
 	return rc
 }
 
-var (
-	errUnexpectedResp = errors.New("server misbehaving: unexpected response")
-)
+var errUnexpectedResp = errors.New("server misbehaving: unexpected response")
 
 func (c *reusableConn) readLoop() {
 	for {

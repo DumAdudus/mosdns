@@ -21,10 +21,11 @@ package mark
 
 import (
 	"context"
-	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
-	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"strconv"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
+	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 )
 
 const PluginType = "mark"
@@ -38,8 +39,10 @@ func init() {
 	})
 }
 
-var _ sequence.Executable = (*mark)(nil)
-var _ sequence.Matcher = (*mark)(nil)
+var (
+	_ sequence.Executable = (*mark)(nil)
+	_ sequence.Matcher    = (*mark)(nil)
+)
 
 type mark struct {
 	m []uint32
@@ -65,8 +68,9 @@ func (m *mark) Exec(_ context.Context, qCtx *query_context.Context) error {
 // "uint32_mark" is an uint32 defined as Go syntax for integer literals.
 // e.g. "111", "0b111", "0o111", "0xfff".
 func newMarker(s string) (*mark, error) {
-	var m []uint32
-	for _, ms := range strings.Fields(s) {
+	fields := strings.Fields(s)
+	m := make([]uint32, 0, len(fields))
+	for _, ms := range fields {
 		n, err := strconv.ParseUint(ms, 10, 32)
 		if err != nil {
 			return nil, err

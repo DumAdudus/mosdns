@@ -21,6 +21,7 @@ package sequence
 
 import (
 	"context"
+
 	"github.com/IrineSistiana/mosdns/v5/coremain"
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 )
@@ -60,7 +61,7 @@ func Init(bp *coremain.BP, args any) (any, error) {
 func NewSequence(bq BQ, ra []RuleArgs) (*Sequence, error) {
 	s := &Sequence{}
 
-	var rc []RuleConfig
+	rc := make([]RuleConfig, 0, len(ra))
 	for _, ra := range ra {
 		rc = append(rc, parseArgs(ra))
 	}

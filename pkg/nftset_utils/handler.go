@@ -32,9 +32,7 @@ import (
 	"go4.org/netipx"
 )
 
-var (
-	ErrClosed = errors.New("closed handler")
-)
+var ErrClosed = errors.New("closed handler")
 
 // NftSetHandler can add netip.Prefix to the corresponding set.
 // The table that contains this set must be an inet family table.
@@ -121,7 +119,7 @@ func (h *NftSetHandler) AddElems(es ...netip.Prefix) error {
 		if set.Interval {
 			start := e.Masked().Addr()
 			elems = append(elems, nftables.SetElement{Key: start.AsSlice(), IntervalEnd: false})
-			
+
 			end := netipx.PrefixLastIP(e).Next() // may be invalid if end is overflowed
 			if end.IsValid() {
 				elems = append(elems, nftables.SetElement{Key: end.AsSlice(), IntervalEnd: true})

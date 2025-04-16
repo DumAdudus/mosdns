@@ -20,10 +20,11 @@
 package tools
 
 import (
+	"strings"
+
 	"github.com/IrineSistiana/mosdns/v5/mlog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 func newConvCmd() *cobra.Command {

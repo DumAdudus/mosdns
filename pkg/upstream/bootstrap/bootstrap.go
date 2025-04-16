@@ -40,9 +40,7 @@ const (
 	queryTimeout          = time.Second * 5
 )
 
-var (
-	errNoAddrInResp = errors.New("resp does not have ip address")
-)
+var errNoAddrInResp = errors.New("resp does not have ip address")
 
 func New(
 	host string,

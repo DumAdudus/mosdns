@@ -70,9 +70,7 @@ func NewUpstream(endPoint string, rt http.RoundTripper, logger *zap.Logger) (*Up
 	}, nil
 }
 
-var (
-	bufPool4k = pool.NewBytesBufPool(4096)
-)
+var bufPool4k = pool.NewBytesBufPool(4096)
 
 func (u *Upstream) ExchangeContext(ctx context.Context, q []byte) (*[]byte, error) {
 	bp := pool.GetBuf(len(q))

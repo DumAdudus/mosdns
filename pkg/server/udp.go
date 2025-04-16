@@ -60,26 +60,25 @@ func ServeUDP(c *net.UDPConn, h Handler, opts UDPServerOpts) error {
 	}
 
 	for {
-		n, oobn, _, remoteAddr, err := c.ReadMsgUDPAddrPort(*rb, ob)
-		if err != nil {
+		n, oobn, _, remoteAddr, errRead := c.ReadMsgUDPAddrPort(*rb, ob)
+		if errRead != nil {
 			if n == 0 {
 				// Err with zero read. Most likely because c was closed.
-				return fmt.Errorf("unexpected read err: %w", err)
+				return fmt.Errorf("unexpected read err: %w", errRead)
 			}
 			// Temporary err.
-			logger.Warn("read err", zap.Error(err))
+			logger.Warn("read err", zap.Error(errRead))
 			continue
 		}
 
 		q := new(dns.Msg)
-		if err := q.Unpack((*rb)[:n]); err != nil {
+		if err = q.Unpack((*rb)[:n]); err != nil {
 			logger.Warn("invalid msg", zap.Error(err), zap.Binary("msg", (*rb)[:n]), zap.Stringer("from", remoteAddr))
 			continue
 		}
 
 		var dstIpFromCm net.IP
 		if oobReader != nil {
-			var err error
 			dstIpFromCm, err = oobReader(ob[:oobn])
 			if err != nil {
 				logger.Error("failed to get dst address from oob", zap.Error(err))
@@ -98,12 +97,14 @@ func ServeUDP(c *net.UDPConn, h Handler, opts UDPServerOpts) error {
 			if oobWriter != nil && dstIpFromCm != nil {
 				oob = oobWriter(dstIpFromCm)
 			}
-			if _, _, err := c.WriteMsgUDPAddrPort(*payload, oob, remoteAddr); err != nil {
-				logger.Warn("failed to write response", zap.Stringer("client", remoteAddr), zap.Error(err))
+			if _, _, errWrite := c.WriteMsgUDPAddrPort(*payload, oob, remoteAddr); errWrite != nil {
+				logger.Warn("failed to write response", zap.Stringer("client", remoteAddr), zap.Error(errWrite))
 			}
 		}()
 	}
 }
 
-type getSrcAddrFromOOB func(oob []byte) (net.IP, error)
-type writeSrcAddrToOOB func(a net.IP) []byte
+type (
+	getSrcAddrFromOOB func(oob []byte) (net.IP, error)
+	writeSrcAddrToOOB func(a net.IP) []byte
+)

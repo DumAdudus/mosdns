@@ -23,8 +23,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"io"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 )
 
 type ChainNode struct {
@@ -96,9 +97,9 @@ checkMatchesLoop:
 	return nil
 }
 
-func (w *ChainWalker) nop() bool {
-	return w.p >= len(w.chain)
-}
+// func (w *ChainWalker) nop() bool {
+// 	return w.p >= len(w.chain)
+// }
 
 func (s *Sequence) buildChain(bq BQ, rs []RuleConfig) error {
 	c := make([]*ChainNode, 0, len(rs))

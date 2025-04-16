@@ -21,6 +21,7 @@ package sequence
 
 import (
 	"context"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 )
 

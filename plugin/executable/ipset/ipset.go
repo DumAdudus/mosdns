@@ -21,9 +21,10 @@ package ipset
 
 import (
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"strconv"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 )
 
 const PluginType = "ipset"

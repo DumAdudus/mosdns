@@ -36,19 +36,16 @@ const (
 	defaultQueryTimeout = time.Second * 5
 )
 
-var (
-	nopLogger = mlog.Nop()
+var nopLogger = mlog.Nop()
 
-	// options that can forward to upstream
-	queryForwardEDNS0Option = map[uint16]struct{}{
-		dns.EDNS0SUBNET: {},
-	}
-
-	// options that useless for downstream
-	respRemoveEDNS0Option = map[uint16]struct{}{
-		dns.EDNS0PADDING: {},
-	}
-)
+// options that can forward to upstream
+// queryForwardEDNS0Option = map[uint16]struct{}{
+// 	dns.EDNS0SUBNET: {},
+// }
+// options that useless for downstream
+// respRemoveEDNS0Option = map[uint16]struct{}{
+// 	dns.EDNS0PADDING: {},
+// }
 
 type EntryHandlerOpts struct {
 	// Logger is used for logging. Default is a noop logger.
@@ -146,9 +143,9 @@ func getValidUDPSize(opt *dns.OPT) int {
 	return int(s)
 }
 
-func newOpt() *dns.OPT {
-	opt := new(dns.OPT)
-	opt.Hdr.Name = "."
-	opt.Hdr.Rrtype = dns.TypeOPT
-	return opt
-}
+// func newOpt() *dns.OPT {
+// 	opt := new(dns.OPT)
+// 	opt.Hdr.Name = "."
+// 	opt.Hdr.Rrtype = dns.TypeOPT
+// 	return opt
+// }

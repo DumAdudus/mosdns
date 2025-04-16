@@ -10,7 +10,7 @@ import (
 func BenchmarkXxx(b *testing.B) {
 	now := time.Now()
 	var l *limiterEntry
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		l = &limiterEntry{
 			l:        rate.NewLimiter(0, 0),
 			lastSeen: now,

@@ -88,7 +88,6 @@ func (list *List) Sort() {
 				out = append(out, n)
 			}
 		}
-
 	}
 
 	list.e = out

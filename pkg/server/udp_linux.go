@@ -32,9 +32,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var (
-	errCmNoDstAddr = errors.New("control msg does not have dst address")
-)
+var errCmNoDstAddr = errors.New("control msg does not have dst address")
 
 func getOOBFromCM4(oob []byte) (net.IP, error) {
 	var cm ipv4.ControlMessage
@@ -87,17 +85,17 @@ func initOobHandler(c *net.UDPConn) (getSrcAddrFromOOB, writeSrcAddrToOOB, error
 	var getter getSrcAddrFromOOB
 	var setter writeSrcAddrToOOB
 	var controlErr error
-	if err := sc.Control(func(fd uintptr) {
-		v, err := unix.GetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_DOMAIN)
-		if err != nil {
-			controlErr = os.NewSyscallError("failed to get SO_PROTOCOL", err)
+	if err = sc.Control(func(fd uintptr) {
+		v, errGetOpt := unix.GetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_DOMAIN)
+		if errGetOpt != nil {
+			controlErr = os.NewSyscallError("failed to get SO_PROTOCOL", errGetOpt)
 			return
 		}
 		switch v {
 		case unix.AF_INET:
 			c4 := ipv4.NewPacketConn(c)
-			if err := c4.SetControlMessage(ipv4.FlagDst, true); err != nil {
-				controlErr = fmt.Errorf("failed to set ipv4 cmsg flags, %w", err)
+			if errSetV4 := c4.SetControlMessage(ipv4.FlagDst, true); errSetV4 != nil {
+				controlErr = fmt.Errorf("failed to set ipv4 cmsg flags, %w", errSetV4)
 			}
 
 			getter = getOOBFromCM4
@@ -105,8 +103,8 @@ func initOobHandler(c *net.UDPConn) (getSrcAddrFromOOB, writeSrcAddrToOOB, error
 			return
 		case unix.AF_INET6:
 			c6 := ipv6.NewPacketConn(c)
-			if err := c6.SetControlMessage(ipv6.FlagDst, true); err != nil {
-				controlErr = fmt.Errorf("failed to set ipv6 cmsg flags, %w", err)
+			if errSetV6 := c6.SetControlMessage(ipv6.FlagDst, true); errSetV6 != nil {
+				controlErr = fmt.Errorf("failed to set ipv6 cmsg flags, %w", errSetV6)
 			}
 			getter = getOOBFromCM6
 			setter = srcIP2Cm

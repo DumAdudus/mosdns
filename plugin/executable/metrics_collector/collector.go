@@ -22,10 +22,11 @@ package metrics_collector
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
 	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"github.com/prometheus/client_golang/prometheus"
-	"time"
 )
 
 const PluginType = "metrics_collector"
@@ -51,7 +52,7 @@ func NewCollector(r prometheus.Registerer, name string) (*Collector, error) {
 	}
 
 	lb := map[string]string{"name": name}
-	var c = &Collector{
+	c := &Collector{
 		queryTotal: prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        "query_total",
 			Help:        "The total number of queries pass through",

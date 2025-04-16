@@ -21,13 +21,14 @@ package coremain
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/IrineSistiana/mosdns/v5/mlog"
 	"github.com/kardianos/service"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 var (
@@ -53,7 +54,7 @@ func (ss *serverService) Start(s service.Service) error {
 	}
 	ss.m = m
 	go func() {
-		err := m.GetSafeClose().WaitClosed()
+		err = m.GetSafeClose().WaitClosed()
 		if err != nil {
 			m.Logger().Fatal("server exited", zap.Error(err))
 		} else {
@@ -210,7 +211,7 @@ func newSvcStatusCmd() *cobra.Command {
 			case service.StatusUnknown:
 				out = "unknown"
 			}
-			println(out)
+			mlog.S().Info(out)
 			return nil
 		},
 		DisableFlagsInUseLine: true,

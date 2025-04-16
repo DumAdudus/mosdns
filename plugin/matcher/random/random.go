@@ -23,12 +23,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
-	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 	"math/rand"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
+	"github.com/IrineSistiana/mosdns/v5/plugin/executable/sequence"
 )
 
 const PluginType = "random"

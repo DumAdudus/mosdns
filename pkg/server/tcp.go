@@ -83,8 +83,8 @@ func ServeTCP(l net.Listener, h Handler, opts TCPServerOpts) error {
 				} else {
 					c.SetReadDeadline(time.Now().Add(idleTimeout))
 				}
-				req, _, err := dnsutils.ReadMsgFromTCP(c)
-				if err != nil {
+				req, _, errRead := dnsutils.ReadMsgFromTCP(c)
+				if errRead != nil {
 					return // read err, close the connection
 				}
 
@@ -108,8 +108,8 @@ func ServeTCP(l net.Listener, h Handler, opts TCPServerOpts) error {
 					}
 					defer pool.ReleaseBuf(r)
 
-					if _, err := c.Write(*r); err != nil {
-						logger.Warn("failed to write response", zap.Stringer("client", c.RemoteAddr()), zap.Error(err))
+					if _, errWrite := c.Write(*r); errWrite != nil {
+						logger.Warn("failed to write response", zap.Stringer("client", c.RemoteAddr()), zap.Error(errWrite))
 						return
 					}
 				}()

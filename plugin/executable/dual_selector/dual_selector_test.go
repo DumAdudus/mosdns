@@ -158,7 +158,7 @@ func TestSelector_Exec(t *testing.T) {
 			q.SetQuestion("example.", tt.qtype)
 			qCtx := query_context.NewContext(q)
 			cw := sequence.NewChainWalker([]*sequence.ChainNode{{E: tt.next}}, nil)
-			if err := s.Exec(context.Background(), qCtx, cw); (err != nil) != tt.wantErr {
+			if err := s.Exec(t.Context(), qCtx, cw); (err != nil) != tt.wantErr {
 				t.Errorf("Exec() error = %v, wantErr %v", err, tt.wantErr)
 			}
 

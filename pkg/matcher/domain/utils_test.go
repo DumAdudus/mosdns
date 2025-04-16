@@ -56,6 +56,15 @@ func TestDomainScanner(t *testing.T) {
 			if !reflect.DeepEqual(gotLabels, tt.wantLabels) {
 				t.Errorf("PrevLabel() = %v, want %v", gotLabels, tt.wantLabels)
 			}
+
+			s1 := NewReverseDomainScanner(tt.fqdn)
+			gotLabels1 := make([]string, 0)
+			for label := range s1.All() {
+				gotLabels1 = append(gotLabels1, label)
+			}
+			if !reflect.DeepEqual(gotLabels1, tt.wantLabels) {
+				t.Errorf("PrevLabel() = %v, want %v", gotLabels1, tt.wantLabels)
+			}
 		})
 	}
 }

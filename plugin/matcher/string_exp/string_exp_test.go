@@ -20,8 +20,6 @@
 package string_exp
 
 import (
-	"context"
-	"os"
 	"testing"
 
 	"github.com/IrineSistiana/mosdns/v5/pkg/query_context"
@@ -34,13 +32,13 @@ func TestMatcher_Match(t *testing.T) {
 	q := new(dns.Msg)
 	qc := query_context.NewContext(q)
 	qc.ServerMeta = query_context.ServerMeta{UrlPath: "/dns-query", ServerName: "a.b.c"}
-	os.Setenv("STRING_EXP_TEST", "abc")
+	t.Setenv("STRING_EXP_TEST", "abc")
 
 	doTest := func(arg string, want bool) {
 		t.Helper()
 		urlMatcher, err := QuickSetupFromStr(arg)
 		r.NoError(err)
-		got, err := urlMatcher.Match(context.Background(), qc)
+		got, err := urlMatcher.Match(t.Context(), qc)
 		r.NoError(err)
 		r.Equal(want, got)
 	}

@@ -85,9 +85,9 @@ func ServeDoQ(l *quic.Listener, h Handler, opts DoQServerOpts) error {
 					streamAcceptTimeout = idleTimeout
 				}
 				streamAcceptCtx, cancelStreamAccept := context.WithTimeout(connCtx, streamAcceptTimeout)
-				stream, err := c.AcceptStream(streamAcceptCtx)
+				stream, errAccept := c.AcceptStream(streamAcceptCtx)
 				cancelStreamAccept()
-				if err != nil {
+				if errAccept != nil {
 					return
 				}
 
@@ -100,8 +100,8 @@ func ServeDoQ(l *quic.Listener, h Handler, opts DoQServerOpts) error {
 					}()
 					// Avoid fragmentation attack.
 					stream.SetReadDeadline(time.Now().Add(streamReadTimeout))
-					req, _, err := dnsutils.ReadMsgFromTCP(stream)
-					if err != nil {
+					req, _, errRead := dnsutils.ReadMsgFromTCP(stream)
+					if errRead != nil {
 						return
 					}
 					queryMeta := QueryMeta{
@@ -113,8 +113,8 @@ func ServeDoQ(l *quic.Listener, h Handler, opts DoQServerOpts) error {
 					if resp == nil {
 						return
 					}
-					if _, err := stream.Write(*resp); err != nil {
-						logger.Warn("failed to write response", zap.Stringer("client", c.RemoteAddr()), zap.Error(err))
+					if _, errWrite := stream.Write(*resp); errWrite != nil {
+						logger.Warn("failed to write response", zap.Stringer("client", c.RemoteAddr()), zap.Error(errWrite))
 					}
 				}()
 			}

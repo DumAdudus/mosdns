@@ -22,12 +22,13 @@ package ip_set
 import (
 	"bytes"
 	"fmt"
-	"github.com/IrineSistiana/mosdns/v5/coremain"
-	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/netlist"
-	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider"
 	"net/netip"
 	"os"
 	"strings"
+
+	"github.com/IrineSistiana/mosdns/v5/coremain"
+	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/netlist"
+	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider"
 )
 
 const PluginType = "ip_set"

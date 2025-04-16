@@ -107,15 +107,18 @@ func (t *PipelineTransport) Close() error {
 	return nil
 }
 
-func (t *PipelineTransport) getReservedExchanger() (_ ReservedExchanger, isNewConn bool, err error) {
+func (t *PipelineTransport) getReservedExchanger() (ReservedExchanger, bool, error) {
 	t.m.Lock()
+	defer t.m.Unlock()
+	var rxc ReservedExchanger
+	var isNewConn bool
+	var err error
+
 	if t.closed {
 		err = ErrClosedTransport
-		t.m.Unlock()
-		return
+		return rxc, isNewConn, err
 	}
 
-	var rxc ReservedExchanger
 	const maxReserveAttempt = 16
 	reserveAttempt := 0
 	for c := range t.conns {
@@ -126,11 +129,10 @@ func (t *PipelineTransport) getReservedExchanger() (_ ReservedExchanger, isNewCo
 		}
 		if rxc != nil {
 			break
-		} else {
-			reserveAttempt++
-			if reserveAttempt > maxReserveAttempt {
-				break
-			}
+		}
+		reserveAttempt++
+		if reserveAttempt > maxReserveAttempt {
+			break
 		}
 	}
 
@@ -141,7 +143,6 @@ func (t *PipelineTransport) getReservedExchanger() (_ ReservedExchanger, isNewCo
 		isNewConn = true
 		t.conns[c] = struct{}{}
 	}
-	t.m.Unlock()
 
 	if rxc == nil {
 		isNewConn = false

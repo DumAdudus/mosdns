@@ -175,7 +175,7 @@ func Test_dnsConn_exchange(t *testing.T) {
 				dc.Close()
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+			ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*100)
 			defer cancel()
 			q := new(dns.Msg)
 			q.SetQuestion("test.", dns.TypeA)
@@ -215,21 +215,21 @@ func Test_dnsConn_exchange(t *testing.T) {
 func Test_dnsConn_exchange_race(t *testing.T) {
 	r := require.New(t)
 	wg := new(sync.WaitGroup)
-	for i := 0; i < 1024; i++ {
+	for range 1024 {
 		c := newDummyEchoNetConn(0.5, time.Millisecond*20, 0.5)
 		ioOpts := TraditionalDnsConnOpts{
 			WithLengthHeader: true, // TODO: Test false as well
 			IdleTimeout:      time.Millisecond * 50,
 		}
 		dc := NewDnsConn(ioOpts, c)
-		for j := 0; j < 24; j++ {
+		for range 24 {
 			if dc.IsClosed() {
 				break
 			}
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+				ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*100)
 				defer cancel()
 				q := new(dns.Msg)
 				q.SetQuestion("test.", dns.TypeA)

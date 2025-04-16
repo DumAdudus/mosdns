@@ -51,18 +51,18 @@ func LoadCertPool(certs []string) (*x509.CertPool, error) {
 
 // GenerateCertificate generates an ecdsa certificate with given dnsName.
 // This should only use in test.
-func GenerateCertificate(dnsName string) (cert tls.Certificate, err error) {
+func GenerateCertificate(dnsName string) (tls.Certificate, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return
+		return tls.Certificate{}, err
 	}
 
-	//serial number
+	// serial number
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
 		err = fmt.Errorf("generate serial number: %w", err)
-		return
+		return tls.Certificate{}, err
 	}
 
 	template := x509.Certificate{
@@ -80,11 +80,11 @@ func GenerateCertificate(dnsName string) (cert tls.Certificate, err error) {
 
 	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
 	if err != nil {
-		return
+		return tls.Certificate{}, err
 	}
 	b, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
-		return
+		return tls.Certificate{}, err
 	}
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
