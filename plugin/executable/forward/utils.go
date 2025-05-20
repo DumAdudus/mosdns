@@ -116,7 +116,7 @@ func (uw *upstreamWrapper) name() string {
 	return uw.cfg.Addr
 }
 
-func (uw *upstreamWrapper) ExchangeContext(ctx context.Context, m []byte) (*[]byte, error) {
+func (uw *upstreamWrapper) ExchangeContext(ctx context.Context, m []byte) (*pool.MsgBuffer, error) {
 	uw.queryTotal.Inc()
 
 	start := time.Now()
@@ -150,8 +150,8 @@ func (uw *upstreamWrapper) Close() error {
 // 	return nil
 // }
 
-func copyPayload(b *[]byte) *[]byte {
-	bc := pool.GetBuf(len(*b))
-	copy(*bc, *b)
-	return bc
+func copyPayload(buf *pool.MsgBuffer) *pool.MsgBuffer {
+	newBuf := pool.GetBuf(len(*buf))
+	copy(*newBuf, *buf)
+	return newBuf
 }

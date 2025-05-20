@@ -28,3 +28,5 @@ var (
 	GetBuf     = _pool.Get
 	ReleaseBuf = _pool.Release
 )
+
+type MsgBuffer = []byte

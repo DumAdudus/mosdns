@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/netip"
 
+	"github.com/IrineSistiana/mosdns/v5/pkg/pool"
 	"github.com/miekg/dns"
 )
 
@@ -16,7 +17,7 @@ import (
 // doh: send a 500 response.
 // doq: close the stream immediately.
 type Handler interface {
-	Handle(ctx context.Context, q *dns.Msg, meta QueryMeta, packMsgPayload func(m *dns.Msg) (*[]byte, error)) (respPayload *[]byte)
+	Handle(ctx context.Context, q *dns.Msg, meta QueryMeta, packMsgPayload func(m *dns.Msg) (*pool.MsgBuffer, error)) (respPayload *[]byte)
 }
 
 type QueryMeta struct {

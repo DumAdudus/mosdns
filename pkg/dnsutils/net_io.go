@@ -39,7 +39,7 @@ var ErrPayloadTooSmall = errors.New("payload is to small for a valid dns msg")
 // with a two byte length field).
 // n represents how many bytes are read from c.
 // The returned the *[]byte should be released by pool.ReleaseBuf.
-func ReadRawMsgFromTCP(c io.Reader) (*[]byte, error) {
+func ReadRawMsgFromTCP(c io.Reader) (*pool.MsgBuffer, error) {
 	h := pool.GetBuf(2)
 	defer pool.ReleaseBuf(h)
 	_, err := io.ReadFull(c, *h)

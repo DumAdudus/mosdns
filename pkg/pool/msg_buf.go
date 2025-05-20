@@ -26,21 +26,25 @@ import (
 	"github.com/miekg/dns"
 )
 
-// There is no such way to give dns.Msg.PackBuffer() a buffer
-// with a proper size.
-// Just give it a big buf and hope the buf will be reused in most scenes.
-const packBufferSize = 8191
+const (
+	// There is no such way to give dns.Msg.PackBuffer() a buffer
+	// with a proper size.
+	// Just give it a big buf and hope the buf will be reused in most scenes.
+	packBufferSize = 8191
+
+	uint16Size   = 2
+	dummyPending = 10
+)
 
 // PackBuffer packs the dns msg m to wire format.
 // Callers should release the buf by calling ReleaseBuf after they have done
 // with the wire []byte.
-func PackBuffer(m *dns.Msg) (*[]byte, error) {
-	packBuf := GetBuf(packBufferSize)
-	defer ReleaseBuf(packBuf)
-	wire, err := m.PackBuffer(*packBuf)
+func PackBuffer(m *dns.Msg) (*MsgBuffer, error) {
+	buf, wire, err := packBuffer(m)
 	if err != nil {
 		return nil, err
 	}
+	defer ReleaseBuf(buf)
 
 	msgBuf := GetBuf(len(wire))
 	copy(*msgBuf, wire)
@@ -49,21 +53,31 @@ func PackBuffer(m *dns.Msg) (*[]byte, error) {
 
 // PackTCPBuffer packs the dns msg m to wire format, with to bytes length header.
 // Callers should release the buf by calling ReleaseBuf.
-func PackTCPBuffer(m *dns.Msg) (*[]byte, error) {
-	packBuf := GetBuf(packBufferSize)
-	defer ReleaseBuf(packBuf)
-	wire, err := m.PackBuffer((*packBuf)[2:])
+func PackTCPBuffer(m *dns.Msg) (*MsgBuffer, error) {
+	packBuf, wire, err := packBuffer(m)
 	if err != nil {
 		return nil, err
 	}
+	defer ReleaseBuf(packBuf)
 
 	l := len(wire)
 	if l > dns.MaxMsgSize {
 		return nil, fmt.Errorf("dns payload size %d is too large", l)
 	}
 
-	msgBuf := GetBuf(2 + len(wire))
+	msgBuf := GetBuf(uint16Size + len(wire))
 	binary.BigEndian.PutUint16(*msgBuf, uint16(l))
-	copy((*msgBuf)[2:], wire)
+	copy((*msgBuf)[uint16Size:], wire)
 	return msgBuf, nil
+}
+
+func packBuffer(m *dns.Msg) (*MsgBuffer, []byte, error) {
+	packBuf := GetBuf(m.Len() + dummyPending)
+	wire, err := m.PackBuffer(*packBuf)
+	if err != nil {
+		ReleaseBuf(packBuf)
+		return nil, nil, err
+	}
+
+	return packBuf, wire, nil
 }

@@ -61,7 +61,7 @@ type Upstream interface {
 	// response. It MUST NOT keep or modify m.
 	// m MUST be a valid dns msg frame. It MUST be at least 12 bytes
 	// (contain a valid dns header).
-	ExchangeContext(ctx context.Context, m []byte) (*[]byte, error)
+	ExchangeContext(ctx context.Context, m []byte) (*pool.MsgBuffer, error)
 
 	io.Closer
 }
