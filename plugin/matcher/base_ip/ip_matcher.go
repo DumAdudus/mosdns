@@ -86,14 +86,14 @@ func NewMatcher(bq sequence.BQ, args *Args, f MatchFunc) (m *Matcher, err error)
 // Format: "([ip] | [$ip_set_tag] | [&ip_list_file])..."
 func ParseQuickSetupArgs(s string) *Args {
 	cutPrefix := func(s string, p string) (string, bool) {
-		if strings.HasPrefix(s, p) {
-			return strings.TrimPrefix(s, p), true
+		if after, ok := strings.CutPrefix(s, p); ok {
+			return after, true
 		}
 		return s, false
 	}
 
 	args := new(Args)
-	for _, exp := range strings.Fields(s) {
+	for exp := range strings.FieldsSeq(s) {
 		if tag, ok := cutPrefix(exp, "$"); ok {
 			args.IPSets = append(args.IPSets, tag)
 		} else if path, ok := cutPrefix(exp, "&"); ok {

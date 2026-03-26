@@ -21,6 +21,7 @@ package mark
 
 import (
 	"context"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -49,10 +50,8 @@ type mark struct {
 }
 
 func (m *mark) Match(_ context.Context, qCtx *query_context.Context) (bool, error) {
-	for _, u := range m.m {
-		if qCtx.HasMark(u) {
-			return true, nil
-		}
+	if slices.ContainsFunc(m.m, qCtx.HasMark) {
+		return true, nil
 	}
 	return false, nil
 }

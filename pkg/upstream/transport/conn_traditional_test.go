@@ -226,9 +226,7 @@ func Test_dnsConn_exchange_race(t *testing.T) {
 			if dc.IsClosed() {
 				break
 			}
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*100)
 				defer cancel()
 				q := new(dns.Msg)
@@ -243,7 +241,7 @@ func Test_dnsConn_exchange_race(t *testing.T) {
 				if rec != nil {
 					_, _ = rec.ExchangeReserved(ctx, queryPayload)
 				}
-			}()
+			})
 		}
 	}
 	wg.Wait()

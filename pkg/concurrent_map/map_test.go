@@ -37,11 +37,9 @@ func Test_Map(t *testing.T) {
 
 	// test add
 	for i := range 512 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			m.Set(testMapHashable(i), i)
-		}()
+		})
 	}
 	wg.Wait()
 
@@ -68,9 +66,7 @@ func Test_Map(t *testing.T) {
 
 	// test get
 	for i := range 512 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			v, ok := m.Get(testMapHashable(i))
 			if !ok {
 				t.Error()
@@ -80,7 +76,7 @@ func Test_Map(t *testing.T) {
 				t.Error()
 				return
 			}
-		}()
+		})
 	}
 	wg.Wait()
 
@@ -91,11 +87,9 @@ func Test_Map(t *testing.T) {
 
 	// test del
 	for i := range 512 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			m.Del(testMapHashable(i))
-		}()
+		})
 	}
 	wg.Wait()
 	if m.Len() != 0 {
@@ -112,11 +106,9 @@ func TestConcurrentMap_TestAndSet(t *testing.T) {
 	}
 
 	for range 512 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			cm.TestAndSet(1, f)
-		}()
+		})
 	}
 	wg.Wait()
 

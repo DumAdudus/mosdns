@@ -1,5 +1,4 @@
 //go:build !linux
-// +build !linux
 
 /*
  * Copyright (C) 2020-2022, IrineSistiana

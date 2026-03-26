@@ -83,16 +83,14 @@ func Test_memCache_race(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 	for range 32 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for i := range 256 {
 				key := testKey(i)
 				c.Store(key, i, time.Now().Add(time.Minute))
 				_, _, _ = c.Get(key)
 				c.gc(time.Now())
 			}
-		}()
+		})
 	}
 	wg.Wait()
 }

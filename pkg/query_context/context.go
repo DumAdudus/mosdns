@@ -20,6 +20,7 @@
 package query_context
 
 import (
+	"maps"
 	"sync/atomic"
 	"time"
 
@@ -258,9 +259,7 @@ func copyMap[K comparable, V any](m map[K]V) map[K]V {
 		return nil
 	}
 	cm := make(map[K]V, len(m))
-	for k, v := range m {
-		cm[k] = v
-	}
+	maps.Copy(cm, m)
 	return cm
 }
 

@@ -82,8 +82,8 @@ type MatchConfig struct {
 }
 
 func trimPrefixField(s, p string) (string, bool) {
-	if strings.HasPrefix(s, p) {
-		return strings.TrimSpace(strings.TrimPrefix(s, p)), true
+	if after, ok := strings.CutPrefix(s, p); ok {
+		return strings.TrimSpace(after), true
 	}
 	return s, false
 }

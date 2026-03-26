@@ -71,7 +71,7 @@ func (f *forwarder) Exec(ctx context.Context, qCtx *query_context.Context, next 
 // Format: [DNS EDNS0 Option Code] ...
 func QuickSetup(_ sequence.BQ, numbers string) (any, error) {
 	m := make(map[uint32]struct{})
-	for _, s := range strings.Fields(numbers) {
+	for s := range strings.FieldsSeq(numbers) {
 		n, err := strconv.ParseUint(s, 10, 16)
 		if err != nil {
 			return nil, err

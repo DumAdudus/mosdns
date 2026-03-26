@@ -84,14 +84,12 @@ func Test_AddElems(t *testing.T) {
 	// test concurrent safe.
 	wg := new(sync.WaitGroup)
 	for range 512 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			if err := h.AddElems(netip.MustParsePrefix("127.0.0.1/24")); err != nil {
 				t.Error(err)
 				return
 			}
-		}()
+		})
 	}
 	wg.Wait()
 }

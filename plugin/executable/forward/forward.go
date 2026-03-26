@@ -210,7 +210,7 @@ func (f *Forward) QuickConfigureExec(args string) (any, error) {
 	if len(args) == 0 { // No args, use all upstreams.
 		us = f.us
 	} else { // Pick up upstreams by tags.
-		for _, tag := range strings.Fields(args) {
+		for tag := range strings.FieldsSeq(args) {
 			u := f.tag2Upstream[tag]
 			if u == nil {
 				return nil, fmt.Errorf("cannot find upstream by tag %s", tag)
@@ -323,7 +323,7 @@ func (f *Forward) exchange(ctx context.Context, qCtx *query_context.Context, us 
 func quickSetup(bq sequence.BQ, s string) (any, error) {
 	args := new(Args)
 	args.Concurrent = maxConcurrentQueries
-	for _, u := range strings.Fields(s) {
+	for u := range strings.FieldsSeq(s) {
 		args.Upstreams = append(args.Upstreams, UpstreamConfig{Addr: u})
 	}
 	return NewForward(args, Opts{Logger: bq.L()})

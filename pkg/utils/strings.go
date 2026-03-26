@@ -31,8 +31,8 @@ func BytesToStringUnsafe(b []byte) string {
 
 // RemoveComment removes comment after "symbol".
 func RemoveComment(s, symbol string) string {
-	if i := strings.Index(s, symbol); i >= 0 {
-		return s[:i]
+	if before, _, ok := strings.Cut(s, symbol); ok {
+		return before
 	}
 	return s
 }
@@ -42,8 +42,8 @@ func SplitString2(s, symbol string) (s1 string, s2 string, ok bool) {
 	if len(symbol) == 0 {
 		return "", s, true
 	}
-	if i := strings.Index(s, symbol); i >= 0 {
-		return s[:i], s[i+len(symbol):], true
+	if before, after, ok0 := strings.Cut(s, symbol); ok0 {
+		return before, after, true
 	}
 	return "", "", false
 }

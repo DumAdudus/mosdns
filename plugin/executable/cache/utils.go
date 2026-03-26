@@ -20,6 +20,7 @@
 package cache
 
 import (
+	"cmp"
 	"hash/maphash"
 	"time"
 
@@ -28,7 +29,6 @@ import (
 	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
 	"github.com/miekg/dns"
 	"go.uber.org/zap"
-	"golang.org/x/exp/constraints"
 )
 
 type key string
@@ -123,7 +123,7 @@ func copyNoOpt(m *dns.Msg) *dns.Msg {
 	return m2
 }
 
-func min[T constraints.Ordered](a, b T) T {
+func min[T cmp.Ordered](a, b T) T {
 	if a < b {
 		return a
 	}

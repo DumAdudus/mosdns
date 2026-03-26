@@ -21,6 +21,7 @@ package coremain
 
 import (
 	"fmt"
+	"maps"
 	"reflect"
 	"sync"
 
@@ -155,9 +156,7 @@ func LoadNewPersetPluginFuncs() map[string]NewPersetPluginFunc {
 	presetPluginFuncReg.Lock()
 	defer presetPluginFuncReg.Unlock()
 	m := make(map[string]NewPersetPluginFunc)
-	for tag, pluginFunc := range presetPluginFuncReg.m {
-		m[tag] = pluginFunc
-	}
+	maps.Copy(m, presetPluginFuncReg.m)
 	return m
 }
 

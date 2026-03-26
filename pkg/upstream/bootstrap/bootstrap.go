@@ -114,10 +114,7 @@ func (sp *Bootstrap) tryUpdate() {
 					)
 					sp.nextUpdate = time.Now().Add(retryInterval)
 				} else {
-					updateInterval := time.Second * time.Duration(ttl)
-					if updateInterval < minimumUpdateInterval {
-						updateInterval = minimumUpdateInterval
-					}
+					updateInterval := max(time.Second*time.Duration(ttl), minimumUpdateInterval)
 					sp.logger.Check(zap.DebugLevel, "bootstrap addr updated").Write(
 						zap.String("fqdn", sp.fqdn),
 						zap.Stringer("addr", addr),

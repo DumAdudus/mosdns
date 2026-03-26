@@ -52,14 +52,12 @@ func Test_ReuseConnTransport(t *testing.T) {
 	for range 4 {
 		wg := new(sync.WaitGroup)
 		for range concurrentQueryNum {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				_, err := rt.ExchangeContext(ctx, queryPayload)
 				if err != nil {
 					t.Error(err)
 				}
-			}()
+			})
 		}
 		wg.Wait()
 		if t.Failed() {
@@ -99,12 +97,10 @@ func Test_ReuseConnTransport_Read_err_and_close(t *testing.T) {
 
 	wg := new(sync.WaitGroup)
 	for range 100 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			_, err := rt.ExchangeContext(ctx, queryPayload)
 			r.Error(err)
-		}()
+		})
 		if t.Failed() {
 			return
 		}

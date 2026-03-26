@@ -122,14 +122,12 @@ func Test_PipelineTransport(t *testing.T) {
 	r.NoError(err)
 	wg := new(sync.WaitGroup)
 	for range wantMaxConcurrentExchangeCall {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			_, err := pt.ExchangeContext(ctx, queryPayload)
 			if err != nil {
 				t.Error(err)
 			}
-		}()
+		})
 		if t.Failed() {
 			break
 		}

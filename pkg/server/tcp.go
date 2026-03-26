@@ -56,10 +56,7 @@ func ServeTCP(l net.Listener, h Handler, opts TCPServerOpts) error {
 	if idleTimeout <= 0 {
 		idleTimeout = defaultTCPIdleTimeout
 	}
-	firstReadTimeout := tcpFirstReadTimeout
-	if idleTimeout < firstReadTimeout {
-		firstReadTimeout = idleTimeout
-	}
+	firstReadTimeout := min(idleTimeout, tcpFirstReadTimeout)
 
 	listenerCtx, cancel := context.WithCancelCause(context.Background())
 	defer cancel(errListenerCtxCanceled)

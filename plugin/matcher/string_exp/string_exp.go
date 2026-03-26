@@ -109,9 +109,9 @@ func QuickSetupFromStr(s string) (sequence.Matcher, error) {
 	}
 
 	var gf GetStrFunc
-	if strings.HasPrefix(srcStrName, "$") {
+	if after, ok := strings.CutPrefix(srcStrName, "$"); ok {
 		// Env
-		envKey := strings.TrimPrefix(srcStrName, "$")
+		envKey := after
 		gf = func(_ *query_context.Context) string {
 			return os.Getenv(envKey)
 		}

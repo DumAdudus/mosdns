@@ -163,9 +163,7 @@ func testUpstream(t *testing.T, u Upstream) error {
 	}
 
 	for i := range uint16(10) {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 
 			q := new(dns.Msg)
 			q.SetQuestion("example.com.", dns.TypeA)
@@ -197,7 +195,7 @@ func testUpstream(t *testing.T, u Upstream) error {
 				logErr(errors.New("resp is not a resp bit"))
 				return
 			}
-		}()
+		})
 	}
 
 	wg.Wait()
